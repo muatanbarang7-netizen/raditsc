@@ -1,0 +1,89 @@
+--[[ 
+    RADITSC V1 - BEE SIMULATOR HUB
+    Created by: Radit
+]]
+
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local AutoFarmBtn = Instance.new("TextButton")
+local TpKingJelly = Instance.new("TextButton")
+local SpeedInput = Instance.new("TextBox")
+
+-- Setup GUI Sederhana (Agar muncul di layar saat di-execute)
+ScreenGui.Name = "RaditscGui"
+ScreenGui.Parent = game.CoreGui
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+MainFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
+MainFrame.Size = UDim2.new(0, 200, 0, 200)
+MainFrame.Active = true
+MainFrame.Draggable = true -- Biar bisa digeser di HP/PC
+
+Title.Text = "Raditsc V1"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Parent = MainFrame
+Title.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
+
+-- Variabel Kontrol
+local AutoFarmActive = false
+local Speed = 20
+
+-- Logika Auto Farm
+AutoFarmBtn.Name = "AutoFarmBtn"
+AutoFarmBtn.Parent = MainFrame
+AutoFarmBtn.Size = UDim2.new(0, 180, 0, 40)
+AutoFarmBtn.Position = UDim2.new(0, 10, 0, 40)
+AutoFarmBtn.Text = "Auto Farm: OFF"
+AutoFarmBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+
+AutoFarmBtn.MouseButton1Click:Connect(function()
+    AutoFarmActive = not AutoFarmActive
+    if AutoFarmActive then
+        AutoFarmBtn.Text = "Auto Farm: ON"
+        AutoFarmBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    else
+        AutoFarmBtn.Text = "Auto Farm: OFF"
+        AutoFarmBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    end
+end)
+
+-- Loop Utama
+task.spawn(function()
+    while true do
+        if AutoFarmActive then
+            local p = game.Players.LocalPlayer
+            local char = p.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                -- Cari bunga terdekat
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v.Name == "Flower" and AutoFarmActive then
+                        char.HumanoidRootPart.CFrame = v.CFrame + Vector3.new(0,2,0)
+                        -- Trigger Harvest
+                        local ev = game.ReplicatedStorage:FindFirstChild("HarvestEvent")
+                        if ev then ev:FireServer() end
+                        task.wait(0.1)
+                    end
+                end
+            end
+        end
+        task.wait(0.5)
+    end
+end)
+
+-- Tombol Teleport King Jelly
+TpKingJelly.Size = UDim2.new(0, 180, 0, 40)
+TpKingJelly.Position = UDim2.new(0, 10, 0, 90)
+TpKingJelly.Text = "TP King Jelly"
+TpKingJelly.Parent = MainFrame
+
+TpKingJelly.MouseButton1Click:Connect(function()
+    local kj = workspace:FindFirstChild("KingJelly", true)
+    if kj then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = kj.CFrame
+    end
+end)
+
+print("Raditsc V1 Loaded Successfully!")
